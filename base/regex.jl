@@ -153,8 +153,6 @@ function contains(s::SubString, r::Regex, offset::Integer=0)
                      r.match_data)
 end
 
-(r::Regex)(s) = contains(s, r)
-
 """
     match(r::Regex, s::AbstractString[, idx::Integer[, addopts]])
 
