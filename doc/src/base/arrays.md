@@ -129,6 +129,7 @@ Base.findnext(::Any, ::Integer)
 Base.findnext(::Function, ::Any, ::Integer)
 Base.findprev(::Any, ::Integer)
 Base.findprev(::Function, ::Any, ::Integer)
+Base.isfound
 Base.permutedims
 Base.permutedims!
 Base.PermutedDimsArray

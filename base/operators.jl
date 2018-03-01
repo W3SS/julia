@@ -875,3 +875,19 @@ julia> map(splat(+), zip(1:3,4:6))
 ```
 """
 splat(f) = args->f(args...)
+
+"""
+    isfound(needle, haystack)
+
+Determine whether `needle` is found within the collection `haystack`.
+
+# Examples
+```jldoctest
+julia> isfound("wor", "Hello, world!")
+true
+
+julia> isfound(r"\d\+", "No numbers here")
+false
+```
+"""
+isfound(needle, haystack) = findfirst(needle, haystack) !== nothing

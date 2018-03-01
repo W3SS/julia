@@ -49,3 +49,6 @@ end
 
 # Proper unicode handling
 @test  match(r"∀∀", "∀x∀∀∀").match == "∀∀"
+
+@test isfound(r"\d\+", "abc123")
+@test !isfound(r"[^_]", "___")

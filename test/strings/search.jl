@@ -328,3 +328,8 @@ end
 @test @inferred findall(equalto('a'), "éa") == [3]
 @test @inferred findall(equalto('€'), "€€") == [1, 4]
 @test @inferred isempty(findall(equalto('é'), ""))
+
+@test isfound(equalto('x'), "xylophone")
+@test isfound("hi", "hi, mom")
+@test !isfound("elephant", "zoo")
+@test !isfound(equalto('3'), "124")

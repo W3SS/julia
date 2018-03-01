@@ -476,6 +476,13 @@ end
     @test findprev(iseven, A, CartesianIndex(2, 1)) === nothing
 end
 
+@testset "isfound" begin
+    @test isfound(isodd, [1, 2, 3])
+    @test isfound(equalto(0x01), [0x00, 0x01, 0x02])
+    @test !isfound(x->x > 4, [1, 2, 3])
+    @test !isfound(isnan, [0.0, 4.5, 2.2])
+end
+
 @testset "findmin findmax argmin argmax" begin
     @test argmax([10,12,9,11]) == 2
     @test argmin([10,12,9,11]) == 3

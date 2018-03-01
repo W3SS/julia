@@ -220,6 +220,8 @@ findnext(r::Regex, s::AbstractString, idx::Integer) = throw(ArgumentError(
 ))
 findfirst(r::Regex, s::AbstractString) = findnext(r,s,firstindex(s))
 
+isfound(r::Regex, s::AbstractString) = contains(s, r)
+
 struct SubstitutionString{T<:AbstractString} <: AbstractString
     string::T
 end
