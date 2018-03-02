@@ -456,6 +456,7 @@ include("loading.jl")
 # misc useful functions & macros
 include("util.jl")
 
+creating_sysimg = true
 # set up depot & load paths to be able to find stdlib packages
 let BINDIR = ccall(:jl_get_julia_bindir, Any, ())
     init_depot_path(BINDIR)
@@ -894,8 +895,10 @@ end
 end
 end
 
-empty!(DEPOT_PATH)
+@eval Base creating_sysimg = false
+
 empty!(LOAD_PATH)
+Base.init_load_path() # want to be able to find external packages in userimg.jl
 
 let
 tot_time_userimg = @elapsed (Base.isfile("userimg.jl") && Base.include(Main, "userimg.jl"))
