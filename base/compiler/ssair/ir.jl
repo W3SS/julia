@@ -11,10 +11,11 @@ struct GotoIfNot
     GotoIfNot(@nospecialize(cond), dest::Int) = new(cond, dest)
 end
 
-struct ReturnNode{T}
-    val::T
-    ReturnNode{T}(@nospecialize(val)) where {T} = new{T}(val::T)
-    ReturnNode{T}() where {T} = new{T}()
+struct ReturnNode
+    val
+    ReturnNode(@nospecialize(val)) = new(val)
+    # unassigned val indicates unreachable
+    ReturnNode() = new()
 end
 
 """
@@ -30,6 +31,8 @@ last(r::StmtRange) = r.last
 start(r::StmtRange) = 0
 done(r::StmtRange, state) = r.last - r.first < state
 next(r::StmtRange, state) = (r.first + state, state + 1)
+
+StmtRange(range::UnitRange{Int}) = StmtRange(first(range), last(range))
 
 struct BasicBlock
     stmts::StmtRange
@@ -264,7 +267,7 @@ function done(it::UseRefIterator, use)
     false
 end
 
-function scan_ssa_use!(used::IdSet{Int64}, @nospecialize(stmt))
+function scan_ssa_use!(used, @nospecialize(stmt))
     if isa(stmt, SSAValue)
         push!(used, stmt.id)
     end

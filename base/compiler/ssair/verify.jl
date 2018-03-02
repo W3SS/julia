@@ -5,7 +5,7 @@ function check_op(ir::IRCode, domtree::DomTree, @nospecialize(op), use_bb::Int, 
             @assert op.id < use_idx
         else
             if !dominates(domtree, def_bb, use_bb)
-                #@error "Basic Block $def_bb does not dominate block $use_bb"
+                #@Base.error "Basic Block $def_bb does not dominate block $use_bb (tried to use value $(op.id))"
                 error()
             end
         end

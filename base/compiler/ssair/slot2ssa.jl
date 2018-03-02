@@ -197,7 +197,7 @@ function strip_trailing_junk!(code::Vector{Any}, lines::Vector{Int})
     # happen for implicit return on dead branches.
     term = code[end]
     if !isa(term, GotoIfNot) && !isa(term, GotoNode) && !isa(term, ReturnNode)
-        push!(code, ReturnNode{Any}())
+        push!(code, ReturnNode())
         push!(lines, 0)
     end
     return code
@@ -352,9 +352,9 @@ function construct_ssa!(ci::CodeInfo, ir::IRCode, domtree::DomTree, defuse, narg
                 ci.code[idx] = nothing
             else
                 stmt = rename_uses!(ir, ci, idx, stmt, incoming_vals)
-                if stmt === nothing && idx == last(cfg.blocks[item].stmts)
+                if stmt === nothing && isa(ci.code[idx], Union{ReturnNode, GotoIfNot}) && idx == last(cfg.blocks[item].stmts)
                     # preserve the CFG
-                    stmt = ReturnNode{Any}()
+                    stmt = ReturnNode()
                 end
                 ci.code[idx] = stmt
                 # Record a store
@@ -370,10 +370,14 @@ function construct_ssa!(ci::CodeInfo, ir::IRCode, domtree::DomTree, defuse, narg
             push!(worklist, (succ, item, copy(incoming_vals)))
         end
     end
-    # Delete any instruction in unreachable blocks
+    # Delete any instruction in unreachable blocks (except for terminators)
     for bb in setdiff(IdSet{Int}(1:length(cfg.blocks)), visited)
         for idx in cfg.blocks[bb].stmts
-            ci.code[idx] = nothing
+            if isa(ci.code[idx], Union{GotoNode, GotoIfNot, ReturnNode})
+                ci.code[idx] = ReturnNode()
+            else
+                ci.code[idx] = nothing
+            end
         end
     end
     # Convert into IRCode form

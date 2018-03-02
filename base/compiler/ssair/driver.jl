@@ -65,7 +65,7 @@ function normalize(@nospecialize(stmt), meta::Vector{Any}, table::Vector{LineInf
         elseif stmt.head === :gotoifnot
             return GotoIfNot(stmt.args...)
         elseif stmt.head === :return
-            return ReturnNode{Any}(stmt.args...)
+            return ReturnNode((length(stmt.args) == 0 ? (nothing,) : stmt.args)...)
         end
     elseif isa(stmt, LabelNode)
         return nothing
@@ -89,6 +89,21 @@ end
 function run_passes(ci::CodeInfo, nargs::Int, linetable::Vector{LineInfoNode})
     mod = linetable[1].mod
     ci.code = copy(ci.code)
+    # Go through and add an unreachable node after every
+    # Union{} call. Then reindex labels.
+    idx = 1
+    while idx <= length(ci.code)
+        stmt = ci.code[idx]
+        if isexpr(stmt, :(=))
+            stmt = stmt.args[2]
+        end
+        if isa(stmt, Expr) && stmt.typ === Union{}
+            insert!(ci.code, idx + 1, ReturnNode())
+            idx += 1
+        end
+        idx += 1
+    end
+    reindex_labels!(ci.code)
     meta = Any[]
     lines = fill(0, length(ci.code))
     let loc = RefValue(1)
@@ -110,6 +125,7 @@ function run_passes(ci::CodeInfo, nargs::Int, linetable::Vector{LineInfoNode})
             IRCode(code, lines, cfg, argtypes, mod, meta)
         end
     ir = construct_ssa!(ci, ir, domtree, defuse_insts, nargs)
+    ir = domsort_ssa!(ir, domtree)
     ir = compact!(ir)
     verify_ir(ir)
     ir = type_lift_pass!(ir)
