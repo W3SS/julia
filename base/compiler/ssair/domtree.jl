@@ -108,7 +108,11 @@ function rename_phinode_edges(node, bb_rename)
             resize!(new_values, length(new_values)+1)
         end
     end
-    PhiNode(new_edges, new_values)
+    if length(new_edges) == 1
+        return isassigned(new_values, 1) ? new_values[1] : PhiNode(Any[], Any[])
+    else
+        return PhiNode(new_edges, new_values)
+    end
 end
 
 function domsort_ssa!(ir, domtree)

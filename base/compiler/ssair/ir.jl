@@ -460,7 +460,7 @@ function next(compact::IncrementalCompact, (idx, active_bb, old_result_idx)::Tup
         compact.result_types[old_result_idx] = typ
         compact.result_lines[old_result_idx] = new_line
         result_idx = process_node!(compact, old_result_idx, new_node, new_idx, idx)
-        (old_result_idx == result_idx) && return next(compact, (idx, result_idx))
+        (old_result_idx == result_idx) && return next(compact, (idx, active_bb, result_idx))
         compact.result_idx = result_idx
         return (old_result_idx, compact.result[old_result_idx]), (compact.idx, active_bb, compact.result_idx)
     end

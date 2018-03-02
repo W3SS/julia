@@ -25,6 +25,8 @@ function verify_ir(ir::IRCode)
             for i = 1:length(stmt.edges)
                 edge = stmt.edges[i]
                 if !(edge in ir.cfg.blocks[bb].preds)
+                    #@Base.show ir
+                    #@Base.show (idx, edge, bb, ir.cfg.blocks[bb].preds)
                     error()
                 end
                 isassigned(stmt.values, i) || continue

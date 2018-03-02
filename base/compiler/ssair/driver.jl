@@ -66,6 +66,8 @@ function normalize(@nospecialize(stmt), meta::Vector{Any}, table::Vector{LineInf
             return GotoIfNot(stmt.args...)
         elseif stmt.head === :return
             return ReturnNode((length(stmt.args) == 0 ? (nothing,) : stmt.args)...)
+        elseif stmt.head === :unreachable
+            return ReturnNode()
         end
     elseif isa(stmt, LabelNode)
         return nothing
@@ -98,8 +100,10 @@ function run_passes(ci::CodeInfo, nargs::Int, linetable::Vector{LineInfoNode})
             stmt = stmt.args[2]
         end
         if isa(stmt, Expr) && stmt.typ === Union{}
-            insert!(ci.code, idx + 1, ReturnNode())
-            idx += 1
+            if !(idx < length(ci.code) && isexpr(ci.code[idx+1], :unreachable))
+                insert!(ci.code, idx + 1, ReturnNode())
+                idx += 1
+            end
         end
         idx += 1
     end
